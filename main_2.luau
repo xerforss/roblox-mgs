@@ -1,40 +1,34 @@
--- ==========================================
--- SCRIPT DE MODIFICAÇÃO DE MAPA VIA GITHUB 🚀
--- ==========================================
+-- ========================================================
+-- GERADOR DE TERRENO REALISTA VIA GITHUB (CÓDIGO AVANÇADO)
+-- ========================================================
 
-print("🌲 Modificando o ambiente através do GitHub...")
+print("🌊 Iniciando a geração de terreno via GitHub...")
 
--- 1. CRIANDO UMA ÁRVORE SIMPLES (Tronco e Folhas)
-local tronco = Instance.new("Part")
-tronco.Size = Vector3.new(2, 8, 2)
-tronco.Position = Vector3.new(0, 4, 10) -- Posição perto do spawn
-tronco.BrickColor = BrickColor.new("Brown")
-tronco.Material = Enum.Material.Wood
-tronco.Anchored = true
-tronco.Parent = workspace
+local terrain = workspace:Terrain
+-- Limpa terrenos anteriores para não acumular quando você reiniciar
+terrain:Clear() 
 
-local folhas = Instance.new("Part")
-folhas.Size = Vector3.new(6, 6, 6)
-folhas.Position = Vector3.new(0, 9, 10) -- No topo do tronco
-folhas.BrickColor = BrickColor.new("Bright green")
-folhas.Material = Enum.Material.Grass
-folhas.Shape = Enum.PartType.Ball
-folhas.Anchored = true
-folhas.Parent = workspace
+-- 1. CRIANDO UMA ENORME PISCINA DE ÁGUA NATURAL (Para nadar no Tablet!)
+-- Vector3.new(X, Y, Z) -> Posição Central (0, -5, 20) e Tamanho (100, 10, 100)
+local posicaoAgua = CFrame.new(0, -5, 20)
+local tamanhoAgua = Vector3.new(100, 10, 100)
 
--- 2. CRIANDO UM BLOCO DE ÁGUA REALISTA
-local piscina = Instance.new("Part")
-piscina.Size = Vector3.new(20, 1, 20)
-piscina.Position = Vector3.new(15, 0.5, 10)
-piscina.BrickColor = BrickColor.new("Bright blue")
-piscina.Material = Enum.Material.ForceField -- Dá um efeito brilhante
-piscina.Transparency = 0.3
-piscina.Anchored = true
-piscina.CanCollide = false -- Faz o jogador conseguir afundar/nadar nela
-piscina.Parent = workspace
+-- O motor do Roblox transforma essa região em água física e fluida
+terrain:FillBlock(posicaoAgua, tamanhoAgua, Enum.Material.Water)
+print("💧 Água física gerada com sucesso!")
 
--- 3. MUDANDO A COR DO CÉU E O CLIMA DO JOGO
-game:GetService("Lighting").ClockTime = 18 -- Muda o horário para o pôr do sol (18:00)
-game:GetService("Lighting").OutdoorAmbient = Color3.fromRGB(255, 150, 100) -- Tom alaranjado
+-- 2. CRIANDO UMA MONTANHA DE PEDRA PROXIMAL
+local posicaoMontanha = CFrame.new(0, 15, 80) -- Mais ao fundo do mapa
+local tamanhoMontanha = Vector3.new(40, 40, 40)
 
-print("✨ Cenário atualizado com sucesso!")
+terrain:FillBlock(posicaoMontanha, tamanhoMontanha, Enum.Material.Rock)
+print("⛰️ Montanha de pedra esculpida!")
+
+-- 3. ADICIONANDO UMA PRAIA DE AREIA AO REDOR DA MONTANHA
+local posicaoPraia = CFrame.new(0, -1, 50)
+local tamanhoPraia = Vector3.new(60, 2, 40)
+
+terrain:FillBlock(posicaoPraia, tamanhoPraia, Enum.Material.Sand)
+print("🏖️ Praia de areia adicionada!")
+
+print("✨ Todo o terreno foi renderizado pelo GitHub!")
