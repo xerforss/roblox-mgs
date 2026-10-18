@@ -1,34 +1,39 @@
 -- ========================================================
--- GERADOR DE TERRENO REALISTA VIA GITHUB (CÓDIGO AVANÇADO)
+-- GERADOR DE TERRENO CORRIGIDO (STREAMING FORÇADO) 🚀
 -- ========================================================
 
-print("🌊 Iniciando a geração de terreno via GitHub...")
+print("🌲 [GitHub] Iniciando renderização forçada de terreno...")
 
 local terrain = workspace:Terrain
--- Limpa terrenos anteriores para não acumular quando você reiniciar
-terrain:Clear() 
+terrain:Clear()
 
--- 1. CRIANDO UMA ENORME PISCINA DE ÁGUA NATURAL (Para nadar no Tablet!)
--- Vector3.new(X, Y, Z) -> Posição Central (0, -5, 20) e Tamanho (100, 10, 100)
-local posicaoAgua = CFrame.new(0, -5, 20)
-local tamanhoAgua = Vector3.new(100, 10, 100)
+-- 1. CONSTRUINDO UMA PLATAFORMA SÓLIDA DE AREIA
+-- Criando uma base firme abaixo do spawn para o avatar não cair no vácuo
+terrain:FillBlock(CFrame.new(0, 0, 0), Vector3.new(100, 4, 100), Enum.Material.Sand)
 
--- O motor do Roblox transforma essa região em água física e fluida
-terrain:FillBlock(posicaoAgua, tamanhoAgua, Enum.Material.Water)
-print("💧 Água física gerada com sucesso!")
+-- 2. GERANDO A MONTANHA DE PEDRA ATRÁS DO SPAWN
+terrain:FillBlock(CFrame.new(0, 20, 60), Vector3.new(50, 40, 50), Enum.Material.Rock)
 
--- 2. CRIANDO UMA MONTANHA DE PEDRA PROXIMAL
-local posicaoMontanha = CFrame.new(0, 15, 80) -- Mais ao fundo do mapa
-local tamanhoMontanha = Vector3.new(40, 40, 40)
+-- 3. GERANDO UM LAGO DE ÁGUA NATURAL NA FRENTE DO SPAWN
+terrain:FillBlock(CFrame.new(0, -2, -40), Vector3.new(80, 10, 80), Enum.Material.Water)
 
-terrain:FillBlock(posicaoMontanha, tamanhoMontanha, Enum.Material.Rock)
-print("⛰️ Montanha de pedra esculpida!")
+-- 4. FORÇAR TELETRANSPORTE E RENDERIZAÇÃO NO TABLET
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        local humRoot = character:WaitForChild("HumanoidRootPart", 10)
+        if humRoot then
+            task.wait(2) -- Tempo necessário para o tablet carregar o motor gráfico
+            humRoot.CFrame = CFrame.new(0, 6, 0) -- Coloca você em cima da areia
+            print("⚡ Personagem posicionado com sucesso na Ilha!")
+        end
+    end)
+end)
 
--- 3. ADICIONANDO UMA PRAIA DE AREIA AO REDOR DA MONTANHA
-local posicaoPraia = CFrame.new(0, -1, 50)
-local tamanhoPraia = Vector3.new(60, 2, 40)
+-- Aplica para o servidor atual caso você já esteja conectado
+for _, player in pairs(game.Players:GetPlayers()) do
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(0, 6, 0)
+    end
+end
 
-terrain:FillBlock(posicaoPraia, tamanhoPraia, Enum.Material.Sand)
-print("🏖️ Praia de areia adicionada!")
-
-print("✨ Todo o terreno foi renderizado pelo GitHub!")
+print("✨ [GitHub] Configuração aplicada globalmente.")
