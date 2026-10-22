@@ -1,8 +1,8 @@
 -- ========================================================================
--- 🌆 PARTE 1: SUNSET CITY, ENVIRONMENT, MUSIC & WALL LETTERS
+-- 🌆 PARTE 1: SUNSET CITY, ENVIRONMENT, MULTI-MUSIC SYSTEM
 -- ========================================================================
 
-print("🌆 Loading Subway Surfers Environment Engine...")
+print("🌆 Loading Subway Surfers Environment & Sound Engine...")
 
 -- 1. LIMPAR O MAPA ANTERIOR PARA EVITAR REPETIÇÕES
 local oldMap = workspace:FindFirstChild("SubwayCity")
@@ -60,17 +60,27 @@ mainWall.Material = Enum.Material.Brick
 mainWall.Anchored = true
 mainWall.Parent = cityFolder
 
--- 3. MÚSICA DE PERSEGUIÇÃO DE FUNDO
+-- 3. PLAYLIST COM VÁRIAS MÚSICAS DE PERSEGUIÇÃO COMPATÍVEIS
+local soundtracks = {
+	"rbxassetid://9043887014", -- Trilha Eletrônica Rápida
+	"rbxassetid://1837872295", -- Batida de Ação Urbana
+	"rbxassetid://9042571871"  -- Música de Corrida Arcade
+}
+
 local oldMusic = game:GetService("SoundService"):FindFirstChild("ChaseMusic")
 if oldMusic then oldMusic:Destroy() end
 
+-- Escolhe uma música aleatória da lista toda vez que o mapa carrega
+local randomTrack = soundtracks[math.random(1, #soundtracks)]
+
 local music = Instance.new("Sound")
 music.Name = "ChaseMusic"
-music.SoundId = "rbxassetid://9043887014"
-music.Volume = 0.3
+music.SoundId = randomTrack
+music.Volume = 0.35
 music.Looped = true
 music.Parent = game:GetService("SoundService")
 music:Play()
+print("🎵 Playing current soundtrack ID: " .. randomTrack)
 
 -- Função auxiliar para criar blocos de letras em 3D simplificados
 local function create3DLetter(char, basePosition, color)
@@ -135,7 +145,7 @@ for index, zPos in ipairs(wallsToTag) do
 	end)
 end
 -- ========================================================================
--- 🎨 PARTE 2: SPRAY CAN, THE INSPECTOR NPC & CHASE SYSTEM
+-- 🎨 PARTE 2: SPRAY CAN & MULTIPLE INSPECTOR CHASE TEAM
 -- ========================================================================
 
 -- 5. LATA DE SPRAY COM FUMAÇA CYAN PARA O JOGADOR
@@ -171,114 +181,122 @@ game.Players.PlayerAdded:Connect(function(player)
 	end)
 end)
 
--- 6. CONSTRUÇÃO DO INSPETOR CLÁSSICO DO SUBWAY SURFERS (NPC)
-local guardModel = Instance.new("Model")
-guardModel.Name = "The Inspector"
-guardModel.Parent = workspace:FindFirstChild("SubwayCity") or workspace
+-- 6. FUNÇÃO PARA CONSTRUIR UM INSPETOR REALISTA INDIVIDUAL
+local function createInspectorNPC(name, startPosition)
+	local guardModel = Instance.new("Model")
+	guardModel.Name = name
+	guardModel.Parent = workspace:FindFirstChild("SubwayCity") or workspace
 
-local hrp = Instance.new("Part")
-hrp.Name = "HumanoidRootPart"
-hrp.Size = Vector3.new(2.5, 2, 1.5)
-hrp.Position = Vector3.new(0, 5, -140)
-hrp.Transparency = 1
-hrp.Parent = guardModel
+	local hrp = Instance.new("Part")
+	hrp.Name = "HumanoidRootPart"
+	hrp.Size = Vector3.new(2.5, 2, 1.5)
+	hrp.Position = startPosition
+	hrp.Transparency = 1
+	hrp.Parent = guardModel
 
-local humanoid = Instance.new("Humanoid")
-humanoid.Parent = guardModel
+	local humanoid = Instance.new("Humanoid")
+	humanoid.Parent = guardModel
 
--- Corpo Largo Verde-Oliva
-local torso = Instance.new("Part")
-torso.Name = "Torso"
-torso.Size = Vector3.new(3, 2.5, 2)
-torso.Color = Color3.fromRGB(85, 107, 47)
-torso.Material = Enum.Material.SmoothPlastic
-torso.Position = hrp.Position
-torso.Parent = guardModel
+	-- Corpo Largo Verde-Oliva
+	local torso = Instance.new("Part")
+	torso.Name = "Torso"
+	torso.Size = Vector3.new(3, 2.5, 2)
+	torso.Color = Color3.fromRGB(85, 107, 47)
+	torso.Material = Enum.Material.SmoothPlastic
+	torso.Position = hrp.Position
+	torso.Parent = guardModel
 
-local belt = Instance.new("Part")
-belt.Size = Vector3.new(3.2, 0.4, 2.2)
-belt.BrickColor = BrickColor.new("Black")
-belt.Position = torso.Position - Vector3.new(0, 1.1, 0)
-belt.Parent = guardModel
+	local belt = Instance.new("Part")
+	belt.Size = Vector3.new(3.2, 0.4, 2.2)
+	belt.BrickColor = BrickColor.new("Black")
+	belt.Position = torso.Position - Vector3.new(0, 1.1, 0)
+	belt.Parent = guardModel
 
-local head = Instance.new("Part")
-head.Name = "Head"
-head.Size = Vector3.new(1.4, 1.4, 1.4)
-head.BrickColor = BrickColor.new("Pastel brown")
-head.Parent = guardModel
+	local head = Instance.new("Part")
+	head.Name = "Head"
+	head.Size = Vector3.new(1.4, 1.4, 1.4)
+	head.BrickColor = BrickColor.new("Pastel brown")
+	head.Parent = guardModel
 
-local mustache = Instance.new("Part")
-mustache.Size = Vector3.new(1.2, 0.3, 0.3)
-mustache.BrickColor = BrickColor.new("Reddish brown")
-mustache.Parent = guardModel
+	local mustache = Instance.new("Part")
+	mustache.Size = Vector3.new(1.2, 0.3, 0.3)
+	mustache.BrickColor = BrickColor.new("Reddish brown")
+	mustache.Parent = guardModel
 
-local capBase = Instance.new("Part")
-capBase.Size = Vector3.new(1.8, 0.3, 1.8)
-capBase.Color = Color3.fromRGB(85, 107, 47)
-capBase.Parent = guardModel
+	local capBase = Instance.new("Part")
+	capBase.Size = Vector3.new(1.8, 0.3, 1.8)
+	capBase.Color = Color3.fromRGB(85, 107, 47)
+	capBase.Parent = guardModel
 
-local capVisor = Instance.new("Part")
-capVisor.Size = Vector3.new(1.6, 0.1, 0.5)
-capVisor.BrickColor = BrickColor.new("Black")
-capVisor.Parent = guardModel
+	local capVisor = Instance.new("Part")
+	capVisor.Size = Vector3.new(1.6, 0.1, 0.5)
+	capVisor.BrickColor = BrickColor.new("Black")
+	capVisor.Parent = guardModel
 
-local lLeg = Instance.new("Part")
-lLeg.Name = "LeftLeg"
-lLeg.Size = Vector3.new(1.2, 2.2, 1.2)
-lLeg.Color = Color3.fromRGB(101, 67, 33)
-lLeg.Parent = guardModel
+	local lLeg = Instance.new("Part")
+	lLeg.Name = "LeftLeg"
+	lLeg.Size = Vector3.new(1.2, 2.2, 1.2)
+	lLeg.Color = Color3.fromRGB(101, 67, 33)
+	lLeg.Parent = guardModel
 
-local rLeg = Instance.new("Part")
-rLeg.Name = "RightLeg"
-rLeg.Size = Vector3.new(1.2, 2.2, 1.2)
-rLeg.Color = Color3.fromRGB(101, 67, 33)
-rLeg.Parent = guardModel
+	local rLeg = Instance.new("Part")
+	rLeg.Name = "RightLeg"
+	rLeg.Size = Vector3.new(1.2, 2.2, 1.2)
+	rLeg.Color = Color3.fromRGB(101, 67, 33)
+	rLeg.Parent = guardModel
 
--- Soldagem Interna (Weld Constraints)
-local function joint(p0, p1)
-	local w = Instance.new("WeldConstraint")
-	w.Part0 = p0
-	w.Part1 = p1
-	w.Parent = p0
-end
-joint(hrp, torso)
-joint(torso, belt)
-joint(torso, head)
-joint(head, mustache)
-joint(head, capBase)
-joint(capBase, capVisor)
-joint(torso, lLeg)
-joint(torso, rLeg)
+	-- Soldagem Interna
+	local function joint(p0, p1)
+		local w = Instance.new("WeldConstraint")
+		w.Part0 = p0
+		w.Part1 = p1
+		w.Parent = p0
+	end
+	joint(hrp, torso)
+	joint(torso, belt)
+	joint(torso, head)
+	joint(head, mustache)
+	joint(head, capBase)
+	joint(capBase, capVisor)
+	joint(torso, lLeg)
+	joint(torso, rLeg)
 
-head.CFrame = torso.CFrame * CFrame.new(0, 1.8, 0)
-mustache.CFrame = head.CFrame * CFrame.new(0, -0.3, -0.65)
-capBase.CFrame = head.CFrame * CFrame.new(0, 0.8, 0)
-capVisor.CFrame = capBase.CFrame * CFrame.new(0, -0.1, -0.8)
-lLeg.CFrame = torso.CFrame * CFrame.new(-0.6, -2.2, 0)
-rLeg.CFrame = torso.CFrame * CFrame.new(0.6, -2.2, 0)
+	head.CFrame = torso.CFrame * CFrame.new(0, 1.8, 0)
+	mustache.CFrame = head.CFrame * CFrame.new(0, -0.3, -0.65)
+	capBase.CFrame = head.CFrame * CFrame.new(0, 0.8, 0)
+	capVisor.CFrame = capBase.CFrame * CFrame.new(0, -0.1, -0.8)
+	lLeg.CFrame = torso.CFrame * CFrame.new(-0.6, -2.2, 0)
+	rLeg.CFrame = torso.CFrame * CFrame.new(0.6, -2.2, 0)
 
-local bodyGyro = Instance.new("BodyGyro")
-bodyGyro.MaxTorque = Vector3.new(400000, 0, 400000)
-bodyGyro.Parent = torso
+	local bodyGyro = Instance.new("BodyGyro")
+	bodyGyro.MaxTorque = Vector3.new(400000, 0, 400000)
+	bodyGyro.Parent = torso
 
--- 7. SISTEMA DE PERSEGUIÇÃO DO INSPETOR (CHASE LOGIC)
-task.spawn(function()
-	while true do
-		task.wait(0.2)
-		for _, player in pairs(game.Players:GetPlayers()) do
-			if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-				humanoid:MoveTo(player.Character.HumanoidRootPart.Position)
+	-- Inteligência de Perseguição do Guarda Individual
+	task.spawn(function()
+		while true do
+			task.wait(0.25)
+			for _, player in pairs(game.Players:GetPlayers()) do
+				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+					humanoid:MoveTo(player.Character.HumanoidRootPart.Position)
+				end
 			end
 		end
-	end
-end)
+	end)
 
--- Sistema de Captura (Busted!)
-torso.Touched:Connect(function(hit)
-	if hit.Parent:FindFirstChild("Humanoid") and hit.Parent.Name ~= "The Inspector" then
-		hit.Parent.Humanoid.Health = 0
-		print("🚨 O Inspetor te pegou!")
-	end
-end)
+	-- Sistema de Captura Individual
+	torso.Touched:Connect(function(hit)
+		if hit.Parent:FindFirstChild("Humanoid") and hit.Parent.Name ~= name then
+			hit.Parent.Humanoid.Health = 0
+			print("🚨 " .. name .. " te pegou!")
+		end
+	end)
+end
 
-print("✨ All systems loaded successfully!")
+-- 7. GERAR O ESQUADRÃO DE 3 GUARDAS EM POSIÇÕES DIFERENTES
+-- Eles nascem perto de você (Z: 20, 30 e 40) para garantir que você os veja imediatamente!
+createInspectorNPC("Inspector Officer Alpha", Vector3.new(-5, 6, 20))
+createInspectorNPC("Inspector Officer Beta", Vector3.new(0, 6, 35))
+createInspectorNPC("Inspector Officer Gamma", Vector3.new(5, 6, 50))
+
+print("✨ All systems loaded successfully with 3 Guards and Random Track Playlist!")
