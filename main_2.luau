@@ -39,3 +39,20 @@ game:GetService("Lighting").OutdoorAmbient = Color3.fromRGB(255, 150, 100) -- To
 
 print("✨ Cenário atualizado com sucesso!")
 
+-- 4. CRIANDO UM BLOCO DE PERIGO (LAVA KILLS)
+local lava = Instance.new("Part")
+lava.Size = Vector3.new(6, 1, 6)
+lava.Position = Vector3.new(-10, 0.5, 10)
+lava.BrickColor = BrickColor.new("Bright red")
+lava.Material = Enum.Material.Neon
+lava.Anchored = true
+lava.Parent = workspace
+
+lava.Touched:Connect(function(hit)
+    local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.Health = 0 -- Elimina o jogador ao tocar
+    end
+end)
+
+
