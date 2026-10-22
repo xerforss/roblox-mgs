@@ -1,179 +1,212 @@
 -- ========================================================
--- 🎨 SUBWAY SURFERS: GRAFFITI & REAL GUARD SYSTEM
+-- 🌆 SUBWAY SURFERS: TOTAL CITY GRAFFITI & REALISTIC GUARD
 -- ========================================================
 
-print("🏃 Loading updated Subway Surfers logic...")
+print("🏙️ Loading City & Realistic Guard logic...")
 
--- LIMPAR O WORKSPACE ANTES DE GERAR (Evita duplicar itens ao atualizar)
-local oldMap = workspace:FindFirstChild("CityAlley")
+-- LIMPAR O MAPA ANTERIOR
+local oldMap = workspace:FindFirstChild("SubwayCity")
 if oldMap then oldMap:Destroy() end
 
-local mapFolder = Instance.new("Folder")
-mapFolder.Name = "CityAlley"
-mapFolder.Parent = workspace
+local cityFolder = Instance.new("Folder")
+cityFolder.Name = "SubwayCity"
+cityFolder.Parent = workspace
 
--- 1. CONSTRUIR A RUA COMPRIDA
-local floor = Instance.new("Part")
-floor.Size = Vector3.new(24, 1, 500)
-floor.Position = Vector3.new(0, 0.5, 0)
-floor.BrickColor = BrickColor.new("Dark stone grey")
-floor.Material = Enum.Material.Concrete
-floor.Anchored = true
-floor.Parent = mapFolder
+-- 1. GERAR A CIDADE E OS PRÉDIOS (BACKGROUND)
+local street = Instance.new("Part")
+street.Size = Vector3.new(30, 1, 600)
+street.Position = Vector3.new(0, 0.5, 0)
+street.BrickColor = BrickColor.new("Dark stone grey")
+street.Material = Enum.Material.Concrete
+street.Anchored = true
+street.Parent = cityFolder
 
-local wallLeft = Instance.new("Part")
-wallLeft.Size = Vector3.new(1, 16, 500)
-wallLeft.Position = Vector3.new(-12, 8, 0)
-wallLeft.BrickColor = BrickColor.new("Medium stone grey")
-wallLeft.Material = Enum.Material.Brick
-wallLeft.Anchored = true
-wallLeft.Parent = mapFolder
-
--- 2. GERAR VÁRIOS MUROS PARA PICHAR (Distribuídos pela rua)
-local wallPositions = {60, 120, 180, 240, 300, 360, 420}
-
-for i, zPos in ipairs(wallPositions) do
-    local tagWall = Instance.new("Part")
-    tagWall.Name = "GraffitiWall_" .. i
-    tagWall.Size = Vector3.new(0.4, 7, 10)
-    tagWall.Position = Vector3.new(-11.4, 4.5, zPos - 250) -- Centralizado na pista
-    tagWall.BrickColor = BrickColor.new("Light stone grey") -- Muro limpo inicialmente
-    tagWall.Material = Enum.Material.Concrete
-    tagWall.Anchored = true
-    tagWall.Parent = mapFolder
-
-    -- Prompt de Proximity para interagir e pichar
-    local prompt = Instance.new("ProximityPrompt")
-    prompt.ObjectText = "Muro Limpo"
-    prompt.ActionText = "Pichar / Graffitar"
-    prompt.HoldDuration = 1.5 -- Tempo segurando o botão
-    prompt.RequiresLineOfSight = false
-    prompt.Parent = tagWall
-
-    -- Quando o jogador picha o muro
-    prompt.Triggered:Connect(function(player)
-        tagWall.BrickColor = BrickColor.new("Really red") -- Fica vermelho simulando o spray
-        tagWall.Material = Enum.Material.Neon
-        prompt.ActionText = "Já está pichado!"
-        prompt.Enabled = false -- Desativa para não pichar o mesmo muro duas vezes
-        print(player.Name .. " fez um graffiti no muro " .. i)
-    end)
+-- Gerador de Prédios Simplificados (Não pesa no Dell 1545)
+for i = -300, 300, 60 do
+	if i ~= 0 then
+		-- Prédios do lado esquerdo
+		local bLeft = Instance.new("Part")
+		bLeft.Size = Vector3.new(40, math.random(60, 120), 40)
+		bLeft.Position = Vector3.new(-40, bLeft.Size.Y/2, i)
+		bLeft.BrickColor = BrickColor.new("Concrete grey")
+		bLeft.Material = Enum.Material.Slate
+		bLeft.Anchored = true
+		bLeft.Parent = cityFolder
+		
+		-- Prédios do lado direito
+		local bRight = Instance.new("Part")
+		bRight.Size = Vector3.new(40, math.random(60, 120), 40)
+		bRight.Position = Vector3.new(40, bRight.Size.Y/2, i)
+		bRight.BrickColor = BrickColor.new("Cadet blue")
+		bRight.Material = Enum.Material.Slate
+		bRight.Anchored = true
+		bRight.Parent = cityFolder
+	end
 end
 
--- 3. DAR UMA LATA DE SPRAY AUTOMÁTICA PARA O JOGADOR
+-- Muros Principais de Pichação
+local mainWall = Instance.new("Part")
+mainWall.Size = Vector3.new(1, 16, 500)
+mainWall.Position = Vector3.new(-15, 8, 0)
+mainWall.BrickColor = BrickColor.new("Medium stone grey")
+mainWall.Material = Enum.Material.Brick
+mainWall.Anchored = true
+mainWall.Parent = cityFolder
+
+-- 2. SISTEMA DE DESENHAR LINHAS NO MURO (GRAFFITI)
+local wallsToTag = {50, 150, 250}
+for _, zPos in ipairs(wallsToTag) do
+	local tagArea = Instance.new("Part")
+	tagArea.Size = Vector3.new(0.5, 8, 12)
+	tagArea.Position = Vector3.new(-14.4, 4, zPos - 150)
+	tagArea.BrickColor = BrickColor.new("Light stone grey")
+	tagArea.Anchored = true
+	tagArea.Parent = cityFolder
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ObjectText = "Muro da Cidade"
+	prompt.ActionText = "Graffitar Linhas"
+	prompt.HoldDuration = 2.0
+	prompt.Parent = tagArea
+
+	prompt.Triggered:Connect(function(player)
+		prompt.Enabled = false
+		tagArea.BrickColor = BrickColor.new("Deep orange")
+		
+		-- Ativa o efeito visual de linhas de tinta aparecendo no muro
+		for lineNum = 1, 3 do
+			local paintLine = Instance.new("Part")
+			paintLine.Size = Vector3.new(0.1, 0.4, 10)
+			paintLine.Position = tagArea.Position + Vector3.new(0.3, (lineNum * 1.5) - 2, 0)
+			paintLine.BrickColor = BrickColor.new("Really red")
+			paintLine.Material = Enum.Material.Neon
+			paintLine.Anchored = true
+			paintLine.Parent = cityFolder
+		end
+		print(player.Name .. " desenhou linhas de graffiti!")
+	end)
+end
+
+-- 3. LATA DE SPRAY COM EFEITO DE FUMAÇA (PARTÍCULAS)
 game.Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(char)
-        -- Criar a ferramenta da Lata de Spray
-        local tool = Instance.new("Tool")
-        tool.Name = "Spray Paint Can"
-        tool.RequiresHandle = true
-        
-        -- O modelo visual da lata
-        local handle = Instance.new("Part")
-        handle.Name = "Handle"
-        handle.Size = Vector3.new(0.6, 1.2, 0.6)
-        handle.BrickColor = BrickColor.new("Really blue") -- Cor da lata
-        handle.Material = Enum.Material.Metal
-        handle.Parent = tool
-        
-        -- Bico do spray
-        local nozzle = Instance.new("Part")
-        nozzle.Size = Vector3.new(0.2, 0.2, 0.2)
-        nozzle.Position = handle.Position + Vector3.new(0, 0.6, 0)
-        nozzle.BrickColor = BrickColor.new("Crimson")
-        nozzle.Anchored = false
-        nozzle.Parent = tool
-        
-        -- Soldar o bico na lata
-        local weld = Instance.new("WeldConstraint")
-        weld.Part0 = handle
-        weld.Part1 = nozzle
-        weld.Parent = handle
-
-        tool.Parent = player.Backpack
-    end)
+	player.CharacterAdded:Connect(function(char)
+		local tool = Instance.new("Tool")
+		tool.Name = "Spray Can"
+		tool.RequiresHandle = true
+		
+		local handle = Instance.new("Part")
+		handle.Name = "Handle"
+		handle.Size = Vector3.new(0.5, 1.2, 0.5)
+		handle.BrickColor = BrickColor.new("Really black")
+		handle.Parent = tool
+		
+		-- O Emissor de Fumaça (Smoke Particles)
+		local fx = Instance.new("ParticleEmitter")
+		fx.Name = "SpraySmoke"
+		fx.Texture = "rbxassetid://241372545" -- Textura de fumaça padrão do Roblox
+		fx.Size = NumberSequence.new(0.2, 1.5)
+		fx.Rate = 0 -- Começa desligado
+		fx.Speed = NumberRange.new(5)
+		fx.Lifetime = NumberRange.new(0.5, 1)
+		fx.Color = ColorSequence.new(Color3.fromRGB(255, 0, 0)) -- Fumaça vermelha!
+		fx.Parent = handle
+		
+		-- Ativa fumaça ao usar a ferramenta
+		tool.Activated:Connect(function()
+			fx.Rate = 45 -- Liga a fumaça
+			task.wait(1.5)
+			fx.Rate = 0 -- Desliga a fumaça
+		end)
+		
+		tool.Parent = player.Backpack
+	end)
 end)
 
--- 4. SPAWN DO GUARDA REALISTA (Construído com blocos acoplados)
-local guardGroup = Instance.new("Model")
-guardGroup.Name = "AngryGuard"
-guardGroup.Parent = mapFolder
+-- 4. GUARDA REALISTA (MODELO R6 INTEGRADO)
+local guardModel = Instance.new("Model")
+guardModel.Name = "RealisticGuard"
+guardModel.Parent = cityFolder
 
--- Tronco (Uniforme de Guarda)
-local torso = Instance.new("Part")
-torso.Name = "Torso"
-torso.Size = Vector3.new(3, 3, 1.5)
-torso.Position = Vector3.new(0, 4.5, -200) -- Começa no início da pista
-torso.BrickColor = BrickColor.new("Navy blue") -- Azul Policial
-torso.Material = Enum.Material.SmoothPlastic
-torso.CanCollide = true
-torso.Parent = guardGroup
+local hrp = Instance.new("Part")
+hrp.Name = "HumanoidRootPart"
+hrp.Size = Vector3.new(2, 2, 1)
+hrp.Position = Vector3.new(0, 5, -120)
+hrp.Transparency = 1
+hrp.Parent = guardModel
 
--- Cabeça
-local head = Instance.new("Part")
-head.Name = "Head"
-head.Size = Vector3.new(1.5, 1.5, 1.5)
-head.Position = torso.Position + Vector3.new(0, 2.25, 0)
-head.BrickColor = BrickColor.new("Pastel brown") -- Tom de pele
-head.Shape = Enum.PartType.Ball
-head.Parent = guardGroup
+local humanoid = Instance.new("Humanoid")
+humanoid.Parent = guardModel
 
--- Chapéu de Guarda
-local hat = Instance.new("Part")
-hat.Size = Vector3.new(2, 0.4, 2)
-hat.Position = head.Position + Vector3.new(0, 0.8, 0)
-hat.BrickColor = BrickColor.new("Black")
-hat.Parent = guardGroup
+-- Construção Visual do Corpo do Guarda
+local gTorso = Instance.new("Part")
+gTorso.Name = "Torso"
+gTorso.Size = Vector3.new(2, 2, 1)
+gTorso.BrickColor = BrickColor.new("Navy blue") -- Uniforme
+gTorso.Position = hrp.Position
+gTorso.Parent = guardModel
 
--- Pernas do Guarda (Calças pretas)
-local legs = Instance.new("Part")
-legs.Name = "Legs"
-legs.Size = Vector3.new(2.5, 3, 1.2)
-legs.Position = torso.Position - Vector3.new(0, 3, 0)
-legs.BrickColor = BrickColor.new("Black")
-legs.Parent = guardGroup
+local gHead = Instance.new("Part")
+gHead.Name = "Head"
+gHead.Size = Vector3.new(1.2, 1.2, 1.2)
+gHead.BrickColor = BrickColor.new("Pastel brown")
+gHead.Position = gTorso.Position + Vector3.new(0, 1.5, 0)
+gHead.Parent = guardModel
 
--- Soldar as partes do guarda para andarem juntas
-local function weldParts(p0, p1)
-    local w = Instance.new("WeldConstraint")
-    w.Part0 = p0
-    w.Part1 = p1
-    w.Parent = p0
+-- Chapéu de Policial Realista
+local cap = Instance.new("Part")
+cap.Size = Vector3.new(1.6, 0.4, 1.6)
+cap.BrickColor = BrickColor.new("Black")
+cap.Position = gHead.Position + Vector3.new(0, 0.7, 0)
+cap.Parent = guardModel
+
+-- Pernas do Policial
+local lLeg = Instance.new("Part")
+lLeg.Name = "LeftLeg"
+lLeg.Size = Vector3.new(1, 2, 1)
+lLeg.BrickColor = BrickColor.new("Black")
+lLeg.Position = gTorso.Position + Vector3.new(-0.5, -2, 0)
+lLeg.Parent = guardModel
+
+local rLeg = Instance.new("Part")
+rLeg.Name = "RightLeg"
+rLeg.Size = Vector3.new(1, 2, 1)
+rLeg.BrickColor = BrickColor.new("Black")
+rLeg.Position = gTorso.Position + Vector3.new(0.5, -2, 0)
+rLeg.Parent = guardModel
+
+-- Soldagem Interna R6 (Para movimentação correta)
+local function joint(p0, p1, name)
+	local w = Instance.new("WeldConstraint")
+	w.Part0 = p0
+	w.Part1 = p1
+	w.Parent = p0
 end
-weldParts(torso, head)
-weldParts(head, hat)
-weldParts(torso, legs)
+joint(hrp, gTorso)
+joint(gTorso, gHead)
+joint(gHead, cap)
+joint(gTorso, lLeg)
+joint(gTorso, rLeg)
 
--- Giroscópio para o guarda não tombar
-local bodyGyro = Instance.new("BodyGyro")
-bodyGyro.MaxTorque = Vector3.new(400000, 0, 400000)
-bodyGyro.Parent = torso
-
--- 5. MOVIMENTAÇÃO DO GUARDA (MAIS LENTO!)
+-- 5. MOVIMENTAÇÃO INTELIGENTE (CHASE LOOP)
 task.spawn(function()
-    while true do
-        task.wait(0.1)
-        for _, player in pairs(game.Players:GetPlayers()) do
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local playerPos = player.Character.HumanoidRootPart.Position
-                local guardPos = torso.Position
-                
-                -- Direção até o jogador
-                local direction = (playerPos - guardPos).Unit
-                -- VELOCIDADE REDUZIDA: De 14 para 10 para dar chance ao jogador!
-                torso.Velocity = Vector3.new(direction.X, 0, direction.Z) * 10 
-            end
-        end
-    end
+	while true do
+		task.wait(0.2)
+		for _, player in pairs(game.Players:GetPlayers()) do
+			if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+				-- O guarda usa o sistema pathfinding simplificado através do Humanoid
+				humanoid:MoveTo(player.Character.HumanoidRootPart.Position)
+			end
+		end
+	end
 end)
 
--- 6. O GUARDA PEGA O JOGADOR (BUSTED!)
-torso.Touched:Connect(function(hit)
-    local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.Health = 0 -- Busted!
-        print("🚨 O Guarda pegou o pichador!")
-    end
+-- Sistema de captura
+gTorso.Touched:Connect(function(hit)
+	if hit.Parent:FindFirstChild("Humanoid") and hit.Parent.Name ~= "RealisticGuard" then
+		hit.Parent.Humanoid.Health = 0
+		print("🚨 O policial te alcançou!")
+	end
 end)
 
-print("✨ Cenário pronto! Fuja do guarda policial azul e piche os muros cinzas com seu spray!")
+print("✨ Engine da cidade carregada com sucesso!")
+
