@@ -1,6 +1,6 @@
 -- ============================================================================
 -- ALL-IN-ONE ROBLOX TEST SCRIPT: GRAFFITI & GUARDS SYSTEM
--- Place this inside a regular Script under ServerScriptService.
+-- Place this inside a regular Script under ServerScriptService
 -- ============================================================================
 
 -- 1. EMULATED MODULES (In-script data structures replacing ModuleScripts for testing)
