@@ -1,4 +1,4 @@
--- Create the main baseplate (floor)
+-- Create the main baseplate (floor).
 local baseplate = Instance.new("Part")
 baseplate.Size = Vector3.new(100, 1, 100)
 baseplate.Position = Vector3.new(0, 0, 0)
